@@ -18,14 +18,6 @@ contract Brand3Slogan is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burn
     //slogan是否已存在
     mapping(string => bool) public sloganToExist;
 
-    //记录所有已被授权可以mint的地址
-    mapping(address => bool) public addressToMint;
-
-    modifier onlyMinter() {
-        require(addressToMint[_msgSender()], "caller is not the minter");
-        _;
-    }
-
     //tag合约的地址
     address public Brand3TagAddress;
 
@@ -39,11 +31,12 @@ contract Brand3Slogan is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burn
         Brand3TagAddress = B3TagAddress;
     }
 
-
-    function mint(uint256[] memory tokenIds, string[] memory linkStrs) public onlyMinter whenNotPaused {
+    //TODO nft收益规则
+    //    TODO mint数量限制，mint收费功能
+    function mint(uint256[] memory tokenIds, string[] memory linkStrs) public whenNotPaused {
         //新建slogan
         Brand3TagInterface brand3TagInstance = Brand3TagInterface(Brand3TagAddress);
-        string memory slogan = brand3TagInstance.makeSlogan(tokenIds,linkStrs);
+        string memory slogan = brand3TagInstance.makeSlogan(tokenIds, linkStrs);
         //校验slogan是否已经被mint过了
         require(!sloganToExist[slogan], "this slogan existed");
         //记录tagValue已存在
@@ -55,14 +48,6 @@ contract Brand3Slogan is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burn
         //将tokenId对应的slogan保存
         tokenIdToSlogan[tokenId] = slogan;
         _safeMint(msg.sender, tokenId);
-    }
-
-    function addMintAddress(address addr) public onlyOwner whenNotPaused {
-        addressToMint[addr] = true;
-    }
-
-    function delMintAddress(address addr) public onlyOwner whenNotPaused {
-        addressToMint[addr] = false;
     }
 
 
