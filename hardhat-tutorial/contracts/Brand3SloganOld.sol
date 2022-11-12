@@ -7,18 +7,24 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+import "./Brand3TagInterface.sol";
 
-contract Brand3Slogan is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable, ERC721Royalty {
+contract Brand3Slogan is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
-    string _baseTokenURI;
+    //tokenId对应的tag
+    mapping(uint256 => string) public tokenIdToSlogan;
+    //slogan是否已存在
+    mapping(string => bool) public sloganToExist;
+
+    //tag合约的地址
+    address public Brand3TagAddress;
 
 
-    constructor(string memory baseURI, string memory _name, string memory _symbol, uint96 memory feeNumerator) ERC721(_name, _symbol) {
-        _baseTokenURI = baseURI;
-        _setDefaultRoyalty(_msgSender(), feeNumerator);
+    constructor(address B3TagAddress) ERC721("Brand3Slogan", "B3S") {
+        addressToMint[msg.sender] = true;
+        Brand3TagAddress = B3TagAddress;
     }
 
     function updateBrand3TagAddress(address B3TagAddress) public onlyOwner {
@@ -27,11 +33,20 @@ contract Brand3Slogan is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burn
 
     //TODO nft收益规则
     //    TODO mint数量限制，mint收费功能
-    function mint() public whenNotPaused {
+    function mint(uint256[] memory tokenIds, string[] memory linkStrs) public whenNotPaused {
+        //新建slogan
+        Brand3TagInterface brand3TagInstance = Brand3TagInterface(Brand3TagAddress);
+        string memory slogan = brand3TagInstance.makeSlogan(tokenIds, linkStrs);
+        //校验slogan是否已经被mint过了
+        require(!sloganToExist[slogan], "this slogan existed");
+        //记录tagValue已存在
+        sloganToExist[slogan] = true;
         //更新tokenId
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
 
+        //将tokenId对应的slogan保存
+        tokenIdToSlogan[tokenId] = slogan;
         _safeMint(msg.sender, tokenId);
     }
 
