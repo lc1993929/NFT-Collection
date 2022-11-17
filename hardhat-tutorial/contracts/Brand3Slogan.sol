@@ -24,7 +24,7 @@ ERC721Royalty
 
 
 
-    // TODO 新增slogan收钱
+    //  新增slogan收钱，无法在constructor中校验收钱，只能通过平台校验
     // 第1个slogan免费，第2个slogan收0.1ETH，第3个0.5ETH，第4个2.5ETH以此类推
     constructor(
         string memory baseURI,
@@ -46,10 +46,9 @@ ERC721Royalty
         _setTokenRoyalty(tokenId, _msgSender(), feeNumerator);
     }
 
-    //  TODO slogan交易2.5%给到平台，重写ownerTransfer
-    //    版税受益的owner部分变为买家地址
+    //   slogan交易2.5%给到平台，通过交易平台处理
 
-    //  TODO nft交易版税1%给owner，creater的百分比自己定，0.5%给平台.重写transfer
+    //   nft交易版税1%给owner，creater的百分比自己定，0.5%给平台.通过交易平台处理
 
     /**
      * 从该合约中提取所有的eth到owner
