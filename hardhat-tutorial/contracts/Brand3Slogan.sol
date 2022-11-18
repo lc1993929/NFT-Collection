@@ -36,14 +36,14 @@ ERC721Royalty
         _setDefaultRoyalty(_msgSender(), feeNumerator);
     }
 
-    //    TODO mint数量不限制，只能由owner进行mint，在mint指定creater地址为版税受益人
-    function mint(uint96 feeNumerator) public whenNotPaused {
+    // mint数量不限制，只能由owner进行mint，在mint指定creator地址为版税受益人
+    function mint(uint96 feeNumerator, address creator) public onlyOwner whenNotPaused {
         //更新tokenId
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
 
-        _safeMint(_msgSender(), tokenId);
-        _setTokenRoyalty(tokenId, _msgSender(), feeNumerator);
+        _safeMint(creator, tokenId);
+        _setTokenRoyalty(tokenId, creator, feeNumerator);
     }
 
     //   slogan交易2.5%给到平台，通过交易平台处理
