@@ -36,19 +36,19 @@ ERC721Royalty
         _setDefaultRoyalty(_msgSender(), feeNumerator);
     }
 
-    // mint数量不限制，只能由owner进行mint，在mint指定creator地址为版税受益人
-    function mint(uint96 feeNumerator, address creator) public onlyOwner whenNotPaused {
+    // mint数量不限制，只能由owner进行mint，在mint指定splitter地址为版税受益人
+    function mint(address creator, address splitter) public onlyOwner whenNotPaused {
         //更新tokenId
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
 
         _safeMint(creator, tokenId);
-        _setTokenRoyalty(tokenId, creator, feeNumerator);
+        _setTokenRoyalty(tokenId, splitter, 250);
     }
 
     //   slogan交易2.5%给到平台，通过交易平台处理
 
-    //   nft交易版税1%给owner，creater的百分比自己定，0.5%给平台.通过交易平台处理
+    //   nft交易版税1%给owner，1%给creator，0.5%给平台.通过splitter处理
 
     /**
      * 从该合约中提取所有的eth到owner
